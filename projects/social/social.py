@@ -1,3 +1,18 @@
+import random
+
+class Queue():
+    def __init__(self):
+        self.queue = []
+    def enqueue(self, value):
+        self.queue.append(value)
+    def dequeue(self):
+        if self.size() > 0:
+            return self.queue.pop(0)
+        else:
+            return None
+    def size(self):
+        return len(self.queue)
+
 class User:
     def __init__(self, name):
         self.name = name
@@ -44,9 +59,29 @@ class SocialGraph:
         self.friendships = {}
         # !!!! IMPLEMENT ME
 
-        # Add users
+        # Add us
+        for user in range(num_users):
+            self.add_user(f'user_{user + 1}')
 
         # Create friendships
+        # Potential friendship container
+        potential_friendships = []
+
+        # Add all potential friendship combinations
+        for user_id in self.users:
+            for friend_id in self.users:
+                if user_id < friend_id:
+                    potential_friendships.append((user_id, friend_id))
+
+        # Shuffle the potential combinations
+        random.shuffle(potential_friendships)
+
+        average = (num_users * avg_friendships) // 2
+
+        # Add the potential friendships to users based on the average
+        for num in range(average):
+            user_id, friend_id = potential_friendships[num]
+            self.add_friendship(user_id, friend_id)
 
     def get_all_social_paths(self, user_id):
         """
@@ -59,6 +94,27 @@ class SocialGraph:
         """
         visited = {}  # Note that this is a dictionary, not a set
         # !!!! IMPLEMENT ME
+        # Create a Queue
+        q = Queue()
+        # Put the starting point in the Queue
+        q.enqueue([user_id])
+        # While there items in the Queue
+        while q.size() > 0:
+            # Pop the first item
+            path = q.dequeue()
+            user = path[-1]
+            # If not visited
+            if user not in visited:
+                visited[user] = path
+                # For each edge in the item
+                for friend_id in self.friendships[user]:
+                    # Copy path to avoid pass by reference bug
+                    # Make a copy of path rather than reference
+                    if friend_id not in visited:
+                        new_path = list(path)
+                        new_path.append(friend_id)
+                        q.enqueue(new_path)
+
         return visited
 
 
